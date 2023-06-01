@@ -1,5 +1,5 @@
 # Written by Dylan Tuminelli using ChatGPT
-# Fixer! - Changes every file in a selected folder to the desired file type. 
+# Changes every file in a selected folder to the desired file type. 
 # Version 1.0 - 5/31/2023
 import os
 
