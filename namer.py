@@ -1,4 +1,5 @@
 # Written by Dylan Tuminelli using ChatGPT
+# Designed to organize and rename tv shows in a specified folder. Includes episode titles.
 # Version 1.0 - 5/31/2023
 import requests
 import os
