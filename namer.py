@@ -1,3 +1,5 @@
+# Written by Dylan Tuminelli using ChatGPT
+# Version 1.0 - 5/31/2023
 import requests
 import os
 import re
@@ -54,9 +56,6 @@ def rename_files(show_title, folder_path):
                 print(f"Renaming files: {renamed_count}/{file_count}", end="\r")
 
     print("\nDone.")
-
-
-
 
 def extract_season_episode(filename):
     season_episode = None
