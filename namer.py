@@ -1,6 +1,6 @@
 # Written by Dylan Tuminelli using ChatGPT
-# Designed to organize and rename tv shows in a specified folder. Includes episode titles.
-# Version 1.0 - 5/31/2023
+# Organizes and renames tv shows in a specified folder. Includes episode titles from EpisoDate.
+# Version 2.0 - 6/22/2023
 import requests
 import os
 import re
@@ -28,12 +28,21 @@ def search_show(show_title):
 
     # Prompt the user to select a show
     show_number = int(input("Enter the number of the desired show: "))
-    selected_show = shows[show_number - 1]
-    print(f"Selected show: {selected_show['name']}")
+    selected_show_data = shows[show_number - 1]
+    print(f"Selected show: {selected_show_data['name']}")
+
+    # Retrieve the show's details from the API based on the selected show
+    selected_show_id = selected_show_data["id"]
+    show_details_url = f"https://www.episodate.com/api/show-details?q={selected_show_id}"
+    response = requests.get(show_details_url)
+    show_data = response.json()
+
+    if "tvShow" in show_data:
+        selected_show = show_data["tvShow"]
 
     return selected_show
 
-def rename_files(show_title, folder_path):
+def rename_files(show_title, folder_path, selected_show):
     renamed_count = 0
 
     # Calculate the total file count
@@ -45,7 +54,7 @@ def rename_files(show_title, folder_path):
                 season_episode = extract_season_episode(filename)
                 if season_episode:
                     season, episode = season_episode
-                    episode_name = get_episode_name(show_title, season, episode)
+                    episode_name = get_episode_name(show_title, season, episode, selected_show)
                     new_filename = f"{show_title} -S{season:02d}E{episode:02d}- {episode_name}{filename[-4:]}"
                     os.rename(
                         os.path.join(root, filename),
@@ -81,8 +90,8 @@ def extract_season_episode(filename):
             break
     return season_episode
 
-def get_episode_name(show_title, season, episode):
-    show_id = get_show_id(show_title)
+def get_episode_name(show_title, season, episode, selected_show):
+    show_id = get_show_id(show_title, selected_show)
     if show_id is None:
         return ""
 
@@ -105,26 +114,20 @@ def get_episode_name(show_title, season, episode):
                     episode_name = html.unescape(episode_name)
                     
                     return episode_name
-
     return ""
 
-def get_show_id(show_title):
-    search_url = f"https://www.episodate.com/api/search?q={show_title}"
-    response = requests.get(search_url)
-    data = response.json()
-
-    if "tv_shows" in data and len(data["tv_shows"]) > 0:
-        return data["tv_shows"][0]["id"]
-
+def get_show_id(show_title, selected_show):
+    if show_title.lower() in selected_show['name'].lower():
+        return selected_show['id']
     return None
 
 def main():
     folder_path = input("Enter your show's folder path: ")
     show_title = input("Enter the name of the show: ")
-    
+
     selected_show = search_show(show_title)
     if selected_show is not None:
-        rename_files(show_title, folder_path)
+        rename_files(show_title, folder_path, selected_show)
 
 if __name__ == "__main__":
     main()
